@@ -1,0 +1,86 @@
+# Compila i pacchetti di installazione di Gieffe-it:
+#   - Linux:   .deb  (Linux Mint / Ubuntu)
+#   - Windows: Gieffe-it_x.y.z_x64-setup.exe  (installazione per utente, senza permessi di amministratore)
+#
+# Si avvia da solo quando si crea un'etichetta di versione (es. v0.1.0) e pubblica una "Release"
+# con i due file. Si può anche avviare a mano da Actions > Pacchetti > Run workflow: in quel caso
+# i file si scaricano dalla pagina dell'esecuzione (sezione "Artifacts").
+name: Pacchetti
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pacchetti:
+    name: ${{ matrix.nome }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - nome: Linux (.deb)
+            os: ubuntu-22.04
+            args: --bundles deb
+            percorso: client/src-tauri/target/release/bundle/deb/*.deb
+          - nome: Windows (.exe)
+            os: windows-latest
+            args: --bundles nsis
+            percorso: client/src-tauri/target/release/bundle/nsis/*.exe
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Librerie di sistema (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libxdo-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: client/src-tauri
+
+      - name: Dipendenze e test
+        working-directory: client
+        run: |
+          npm ci
+          npm test
+          npm run check
+
+      - name: Compilazione e pacchetto
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: client
+          args: ${{ matrix.args }}
+          tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+          releaseName: "Gieffe-it ${{ github.ref_name }}"
+          releaseBody: |
+            Pacchetti di installazione di Gieffe-it.
+            - **Linux (Mint/Ubuntu)**: scarica il file `.deb` e installalo con `sudo apt install ./nome-del-file.deb`
+            - **Windows**: scarica il file `...-setup.exe` e avvialo (se Windows mostra un avviso, scegli "Maggiori informazioni" e poi "Esegui comunque")
+          releaseDraft: false
+          prerelease: false
+
+      - name: Conserva i pacchetti (esecuzioni a mano)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gieffe-it-${{ runner.os }}
+          path: ${{ matrix.percorso }}
+          if-no-files-found: error

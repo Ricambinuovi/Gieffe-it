@@ -59,6 +59,36 @@ PB_BIN=/percorso/di/pocketbase npm test    # oppure: ./scripts/scarica-pocketbas
 Avvia un server temporaneo e verifica hook, regole di accesso, stati, urgenti, risposte,
 tempo reale e durata della sessione.
 
+## Installare l'app sui PC
+
+I pacchetti si trovano nella pagina **Releases** del repository su GitHub (repository privato:
+serve essere collegati a GitHub con un account che ha accesso).
+
+- **Linux Mint / Ubuntu**: scarica `Gieffe-it_x.y.z_amd64.deb` e installalo con
+  `sudo apt install ./Gieffe-it_x.y.z_amd64.deb` (da dentro la cartella dove l'hai scaricato).
+  Poi lo trovi nel menu delle applicazioni, nella categoria *Ufficio*, con il nome **Gieffe-it**;
+  per metterlo sul desktop: tasto destro sulla voce di menu > *Aggiungi al desktop*.
+- **Windows**: scarica `Gieffe-it_x.y.z_x64-setup.exe` e avvialo. Si installa solo per l'utente
+  che lo avvia, senza bisogno di permessi di amministratore. Non essendo firmato digitalmente,
+  Windows può mostrare l'avviso "Windows ha protetto il PC": scegli *Maggiori informazioni* e
+  poi *Esegui comunque*.
+
+Al primo avvio compare la finestra di accesso (indirizzo del server, email, password).
+Da quel momento Gieffe-it parte da solo all'accensione del PC e vive nell'area di notifica.
+
+I pacchetti li costruisce GitHub (flusso di lavoro `.github/workflows/pacchetti.yml`) ogni volta
+che si crea un'etichetta di versione, ad esempio:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+oppure a mano da *Actions > Pacchetti > Run workflow* (i file compaiono in fondo alla pagina
+dell'esecuzione, sezione *Artifacts*).
+
+Per costruire il pacchetto Linux sul proprio PC: `cd client && npm run tauri build -- --bundles deb`
+(il file si trova in `client/src-tauri/target/release/bundle/deb/`).
+
 ## Client (prova in sviluppo)
 
 Requisiti su Linux Mint: Node.js 20+, Rust (https://rustup.rs) e le librerie di sistema di Tauri:
