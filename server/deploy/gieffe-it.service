@@ -1,0 +1,27 @@
+[Unit]
+Description=Gieffe-it - server messaggi (PocketBase)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gieffe
+Group=gieffe
+WorkingDirectory=/opt/gieffe-it
+ExecStart=/opt/gieffe-it/pocketbase serve --http=0.0.0.0:8090 \
+  --dir=/var/lib/gieffe-it/pb_data \
+  --migrationsDir=/opt/gieffe-it/pb_migrations \
+  --hooksDir=/opt/gieffe-it/pb_hooks
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/gieffe-it
+
+[Install]
+WantedBy=multi-user.target

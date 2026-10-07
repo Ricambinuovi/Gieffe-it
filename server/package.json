@@ -1,0 +1,13 @@
+{
+  "name": "gieffe-it-server",
+  "private": true,
+  "type": "module",
+  "description": "Test e dati di prova per il server PocketBase di Gieffe-it",
+  "scripts": {
+    "test": "node --experimental-eventsource --test --test-concurrency=1 tests/server.test.mjs",
+    "seed": "node seed/seed.mjs"
+  },
+  "devDependencies": {
+    "pocketbase": "^0.28.1"
+  }
+}
