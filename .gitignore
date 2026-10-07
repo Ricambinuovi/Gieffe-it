@@ -11,3 +11,6 @@ target/
 server/bin/
 server/pb_data/
 server/pb_data_dev/
+
+# client
+client/src-tauri/gen/

@@ -3,6 +3,14 @@
 // comuni si caricano con require(`${__hooks}/lib.js`) dentro l'handler.
 
 /**
+ * Errore di validazione in italiano. Il testo viaggia anche in data.gieffe.message
+ * (con code "errore_gieffe"): il client lo riconosce come proprio e lo mostra così com'è.
+ */
+function errore(messaggio) {
+  return new BadRequestError(messaggio, { gieffe: new ValidationError("errore_gieffe", messaggio) })
+}
+
+/**
  * Destinatari effettivi di un messaggio: "tutti", oppure i membri dei gruppi
  * scelti più gli utenti scelti. Senza duplicati e escluso il mittente.
  * @returns {string[]} id degli utenti
@@ -42,12 +50,12 @@ function destinatariEffettivi(app, messaggio) {
 function validaNuovoMessaggio(app, messaggio) {
   const testo = (messaggio.getString("testo") || "").trim()
   if (!testo) {
-    throw new BadRequestError("Il messaggio è vuoto.")
+    throw errore("Il messaggio è vuoto.")
   }
   messaggio.set("testo", testo)
 
   if (destinatariEffettivi(app, messaggio).length === 0) {
-    throw new BadRequestError("Nessun destinatario: scegli almeno una persona diversa da te.")
+    throw errore("Nessun destinatario: scegli almeno una persona diversa da te.")
   }
 
   // Si può rispondere solo a messaggi che si sono inviati o ricevuti.
@@ -58,7 +66,7 @@ function validaNuovoMessaggio(app, messaggio) {
     try {
       originale = app.findRecordById("messaggi", rispostaA)
     } catch (_) {
-      throw new BadRequestError("Il messaggio a cui rispondi non esiste.")
+      throw errore("Il messaggio a cui rispondi non esiste.")
     }
 
     let coinvolto = originale.getString("mittente") === mittente
@@ -72,7 +80,7 @@ function validaNuovoMessaggio(app, messaggio) {
       coinvolto = consegne.length > 0
     }
     if (!coinvolto) {
-      throw new BadRequestError("Non puoi rispondere a questo messaggio.")
+      throw errore("Non puoi rispondere a questo messaggio.")
     }
   }
 }
@@ -103,23 +111,23 @@ function validaCambioStato(app, consegna) {
   const nuovo = consegna.getString("stato")
 
   if (precedente === "ok" || precedente === "ignorato") {
-    throw new BadRequestError("Questo messaggio è già stato chiuso.")
+    throw errore("Questo messaggio è già stato chiuso.")
   }
 
   if (nuovo === "in_attesa" && precedente !== "in_attesa") {
-    throw new BadRequestError("Stato non valido.")
+    throw errore("Stato non valido.")
   }
 
   if (nuovo === "posticipato" || nuovo === "ignorato") {
     const messaggio = app.findRecordById("messaggi", consegna.getString("messaggio"))
     if (messaggio.getString("urgenza") === "urgente") {
-      throw new BadRequestError("I messaggi urgenti si chiudono solo con OK.")
+      throw errore("I messaggi urgenti si chiudono solo con OK.")
     }
   }
 
   if (nuovo === "posticipato") {
     if (consegna.getDateTime("posticipato_fino_a").isZero()) {
-      throw new BadRequestError("Indica quando ricordare il messaggio.")
+      throw errore("Indica quando ricordare il messaggio.")
     }
   } else {
     consegna.set("posticipato_fino_a", "")
@@ -131,6 +139,7 @@ function validaCambioStato(app, consegna) {
 }
 
 module.exports = {
+  errore,
   destinatariEffettivi,
   validaNuovoMessaggio,
   creaConsegne,

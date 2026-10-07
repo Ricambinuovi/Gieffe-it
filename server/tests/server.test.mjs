@@ -72,6 +72,17 @@ test("hook: senza destinatari il messaggio viene rifiutato e non resta nulla", a
   assert.equal(dopo, prima)
 })
 
+test("hook: l'errore in italiano viaggia in data.gieffe.message (il client lo mostra così com'è)", async () => {
+  try {
+    await invia("anna", {})
+    assert.fail("doveva essere rifiutato")
+  } catch (e) {
+    assert.equal(e.status, 400)
+    assert.equal(e.response.data.gieffe.code, "errore_gieffe")
+    assert.match(e.response.data.gieffe.message, /Nessun destinatario/)
+  }
+})
+
 test("hook: testo vuoto o di soli spazi rifiutato", async () => {
   await assert.rejects(invia("anna", { a_tutti: true, testo: "   " }))
 })

@@ -1,0 +1,66 @@
+:root {
+  --sfondo: #f6f4ee;
+  --carta: #ffffff;
+  --testo: #26231b;
+  --testo-tenue: #6d6757;
+  --bordo: #d9d4c4;
+  --primario: #2b6a4f;
+  --primario-testo: #ffffff;
+  --giallo: #ffe24a;
+  --urgente: #e23a5a;
+  --errore: #b3261e;
+  --ok: #2b6a4f;
+  --raggio: 8px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  color: var(--testo);
+  background: var(--sfondo);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--sfondo); }
+#app { height: 100%; }
+
+h1 { font-size: 1.35rem; margin: 0 0 4px; }
+h2 { font-size: 1rem; margin: 0 0 8px; }
+p { margin: 0 0 8px; }
+.tenue { color: var(--testo-tenue); font-size: 0.9rem; }
+
+label { display: block; font-weight: 600; margin: 14px 0 5px; }
+input[type="text"], input[type="email"], input[type="password"], textarea {
+  width: 100%;
+  font: inherit;
+  padding: 9px 11px;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: inherit;
+}
+input:focus-visible, textarea:focus-visible, button:focus-visible {
+  outline: 2px solid var(--primario);
+  outline-offset: 1px;
+}
+textarea { resize: vertical; min-height: 110px; }
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo);
+  background: var(--carta);
+  color: inherit;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: #f0ede2; }
+button:disabled { opacity: 0.5; cursor: default; }
+button.primario { background: var(--primario); border-color: var(--primario); color: var(--primario-testo); }
+button.primario:hover:not(:disabled) { background: #245a43; }
+
+.pagina { padding: 22px 24px; min-height: 100%; display: flex; flex-direction: column; }
+.errore { color: var(--errore); background: #fdecea; border-radius: var(--raggio); padding: 9px 12px; margin-top: 12px; }
+.avviso { background: #fff6d6; border-radius: var(--raggio); padding: 9px 12px; margin-bottom: 8px; }
+.riuscito { color: var(--ok); background: #e5f3ec; border-radius: var(--raggio); padding: 9px 12px; margin-top: 12px; }
+.riga { display: flex; gap: 10px; align-items: center; }
+.spazio { flex: 1; }
